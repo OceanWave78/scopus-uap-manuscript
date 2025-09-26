@@ -1,0 +1,104 @@
+name: Manuscript Checks
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  check-manuscript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyspellchecker markdown-lint proselint
+          
+      - name: Check spelling
+        run: |
+          echo "Running spell check on manuscript files..."
+          python -c "
+import os
+import re
+from spellchecker import SpellChecker
+
+spell = SpellChecker()
+academic_terms = ['UAP', 'UAPs', 'UFO', 'UFOs', 'Scopus', 'APA']
+for term in academic_terms:
+    spell.word_frequency.add(term)
+
+errors = []
+for root, dirs, files in os.walk('sections'):
+    for file in files:
+        if file.endswith('.md'):
+            with open(os.path.join(root, file), 'r') as f:
+                content = f.read()
+                # Remove markdown formatting and code blocks
+                content = re.sub(r'```.*?```', '', content, flags=re.DOTALL)
+                content = re.sub(r'`.*?`', '', content)
+                words = re.findall(r'\b\w+\b', content)
+                misspelled = spell.unknown(words)
+                if misspelled:
+                    errors.append(f'Possible spelling errors in {file}: {misspelled}')
+
+if errors:
+    print('\n'.join(errors))
+    print('Note: Some technical terms may be flagged incorrectly.')
+else:
+    print('No spelling errors found!')
+          "
+          
+      - name: Check citations
+        run: |
+          echo "Checking citation consistency..."
+          python -c "
+import re
+import os
+
+# Extract all citations from the text
+citations = []
+for root, dirs, files in os.walk('sections'):
+    for file in files:
+        if file.endswith('.md') and not file.startswith('11-references'):
+            with open(os.path.join(root, file), 'r') as f:
+                content = f.read()
+                # Find all citations in the format (Author, Year)
+                matches = re.findall(r'\(([A-Za-z]+(?:[ ,&]+[A-Za-z]+)*),\s*(\d{4})\)', content)
+                citations.extend(matches)
+
+# Extract all references
+references = []
+ref_file = 'sections/11-references.md'
+if os.path.exists(ref_file):
+    with open(ref_file, 'r') as f:
+        content = f.read()
+        # Simple pattern to match author and year in references
+        matches = re.findall(r'([A-Za-z]+(?:[ ,&]+[A-Za-z]+)*)[^\d]*(\d{4})', content)
+        references.extend(matches)
+
+# Check for citations without references
+missing_refs = []
+for citation in citations:
+    if citation not in references:
+        missing_refs.append(f'{citation[0]} ({citation[1]})')
+
+if missing_refs:
+    print(f'Warning: Found {len(missing_refs)} citations without matching references:')
+    for ref in set(missing_refs):
+        print(f'- {ref}')
+else:
+    print('All citations have matching references!')
+          "
+          
+      - name: Build combined manuscript
+        run: |
+          cat sections/*.md > combined_manuscript.md
+          echo "Combined manuscript created successfully"

@@ -1,0 +1,30 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# Word processor temporary files
+~$*.doc*
+~$*.xls*
+~$*.ppt*
+*.~lock.*
+
+# Build outputs
+combined_manuscript.pdf
+combined_manuscript.docx
+
+# Editor-specific files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
