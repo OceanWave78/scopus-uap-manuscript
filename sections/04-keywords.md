@@ -1,3 +1,1 @@
-**Keywords:** Unidentified Anomalous Phenomena (UAP), Scientific
-Materialism, Consciousness, Disclosure, Paradigm Shift, UAP Research
-
+**Keywords:** Unidentified Anomalous Phenomena (UAP), Scientific Materialism, Consciousness, Disclosure, Paradigm Shift, UAP Research, Quantum Consciousness, Panpsychism, Non-Human Intelligence, Interdimensional Hypothesis, NASA UAP Study, AARO
