@@ -1,0 +1,21 @@
+name: Manuscript Checks
+
+on:
+  push:
+    branches: [ main ]   # runs when you upload to the main branch
+  pull_request:           # runs when someone suggests changes
+
+permissions:
+  contents: read          # safe: only reads files
+
+jobs:
+  spellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get your files
+        uses: actions/checkout@v4
+
+      - name: Run spell check
+        uses: streetsidesoftware/cspell-action@v6
+        with:
+          files: "**/*.md"
